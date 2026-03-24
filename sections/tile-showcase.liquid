@@ -1,0 +1,104 @@
+{% if section.settings.heading != blank or section.blocks.size > 0 %}
+  <section class="tile-showcase bg-white py-12 md:py-16" {{ section.shopify_attributes }}>
+    <div class="mx-auto max-w-7xl px-4">
+      {% if section.settings.heading != blank %}
+        <h2 class="mb-2 text-center text-2xl font-semibold tracking-tight text-neutral-900 md:text-3xl">
+          {{ section.settings.heading | escape }}
+        </h2>
+      {% endif %}
+      {% if section.settings.subheading != blank %}
+        <p class="mb-10 text-center text-neutral-600">{{ section.settings.subheading | escape }}</p>
+      {% endif %}
+
+      {% if section.blocks.size > 0 %}
+        <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+          {% for block in section.blocks %}
+            {% case block.type %}
+              {% when 'tile' %}
+                <a
+                  class="group relative aspect-square overflow-hidden rounded-lg bg-neutral-100"
+                  href="{{ block.settings.link | default: '#' }}"
+                  {{ block.shopify_attributes }}
+                >
+                  {% if block.settings.image != blank %}
+                    {{
+                      block.settings.image
+                      | image_url: width: 600
+                      | image_tag:
+                        class: 'h-full w-full object-cover transition duration-500 group-hover:scale-105',
+                        loading: 'lazy',
+                        alt: block.settings.title | escape
+                    }}
+                  {% endif %}
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                  {% if block.settings.title != blank %}
+                    <span class="absolute bottom-3 left-3 right-3 text-center text-sm font-semibold text-white drop-shadow">
+                      {{ block.settings.title | escape }}
+                    </span>
+                  {% endif %}
+                </a>
+            {% endcase %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </section>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Category tiles",
+  "class": "section-tile-showcase",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop by"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Headwear & apparel"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tile",
+      "name": "Tile",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Category"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Category tiles",
+      "blocks": [
+        { "type": "tile", "settings": { "title": "Clean up" } },
+        { "type": "tile", "settings": { "title": "Franchise" } },
+        { "type": "tile", "settings": { "title": "Hitch" } },
+        { "type": "tile", "settings": { "title": "Trucker" } },
+        { "type": "tile", "settings": { "title": "Tees" } },
+        { "type": "tile", "settings": { "title": "Fleece" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

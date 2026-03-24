@@ -1,0 +1,25 @@
+{
+  "general": {
+    "404": {
+      "title": "Not found",
+      "subtext_html": "The page you were looking for does not exist"
+    }
+  },
+  "layout": {
+    "skip_to_content": "Skip to content",
+    "menu": "Menu",
+    "menu_empty": "Select a menu in the header section settings.",
+    "search": "Search",
+    "search_placeholder": "Search products",
+    "account": "Account",
+    "cart": "Cart",
+    "favorite_teams": "Teams"
+  },
+  "footer": {
+    "newsletter_email": "Email address",
+    "newsletter_placeholder": "Enter your email",
+    "newsletter_submit": "Subscribe",
+    "copyright_html": "© {{ year }} {{ shop_name }}. All rights reserved.",
+    "country": "Country or region"
+  }
+}

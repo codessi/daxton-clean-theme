@@ -1,0 +1,110 @@
+{%- liquid
+  assign overlay = section.settings.overlay_opacity | divided_by: 100.0
+-%}
+
+<section class="hero-47 relative overflow-hidden" {{ section.shopify_attributes }}>
+  <div class="relative min-h-[70vh] md:min-h-[80vh]">
+    {% if section.settings.image != blank %}
+      <div class="absolute inset-0">
+        {{
+          section.settings.image
+          | image_url: width: 2400
+          | image_tag:
+            class: 'h-full w-full object-cover',
+            loading: 'eager',
+            sizes: '100vw',
+            widths: '750, 1100, 1500, 2000, 2400',
+            alt: section.settings.heading | escape
+        }}
+      </div>
+    {% else %}
+      <div class="absolute inset-0 bg-neutral-300"></div>
+    {% endif %}
+
+    <div
+      class="absolute inset-0 bg-black"
+      style="opacity: {{ overlay }};"
+      aria-hidden="true"
+    ></div>
+
+    <div class="relative flex min-h-[70vh] flex-col items-center justify-center px-4 py-20 text-center md:min-h-[80vh] md:px-8">
+      {% if section.settings.kicker != blank %}
+        <p class="mb-3 text-sm font-medium uppercase tracking-[0.2em] text-white/90">
+          {{ section.settings.kicker | escape }}
+        </p>
+      {% endif %}
+      {% if section.settings.heading != blank %}
+        <h1 class="max-w-4xl text-4xl font-semibold tracking-tight text-white md:text-5xl lg:text-6xl">
+          {{ section.settings.heading | escape }}
+        </h1>
+      {% endif %}
+      {% if section.settings.subheading != blank %}
+        <p class="mt-4 max-w-2xl text-lg text-white/90 md:text-xl">
+          {{ section.settings.subheading | escape }}
+        </p>
+      {% endif %}
+      {% if section.settings.button_label != blank and section.settings.button_link != blank %}
+        <a
+          class="mt-8 inline-flex items-center justify-center rounded-full bg-white px-8 py-3 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-100"
+          href="{{ section.settings.button_link }}"
+        >
+          {{ section.settings.button_label | escape }}
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Hero banner",
+  "class": "section-hero-47",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Background image"
+    },
+    {
+      "type": "text",
+      "id": "kicker",
+      "label": "Eyebrow text",
+      "default": "Licensed sports merchandise"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Sports hats, apparel & gear"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Shop official team styles built for fans who wear their colors every day."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Shop the collection"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "label": "Image overlay darkness",
+      "default": 35
+    }
+  ],
+  "presets": [{ "name": "Hero banner" }]
+}
+{% endschema %}

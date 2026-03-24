@@ -1,0 +1,41 @@
+{% if section.settings.menu != blank or section.settings.heading != blank %}
+  <section class="link-strip border-y border-neutral-200 bg-white py-8" {{ section.shopify_attributes }}>
+    <div class="mx-auto max-w-7xl px-4">
+      {% if section.settings.heading != blank %}
+        <h2 class="mb-4 text-center text-sm font-semibold uppercase tracking-wide text-neutral-500">
+          {{ section.settings.heading | escape }}
+        </h2>
+      {% endif %}
+      {% if section.settings.menu != blank %}
+        <ul class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm font-medium text-neutral-800 md:gap-x-8">
+          {% for link in section.settings.menu.links %}
+            <li>
+              <a class="hover:text-neutral-950 hover:underline" href="{{ link.url }}">{{ link.title | escape }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </section>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Link strip",
+  "class": "section-link-strip",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Looking for more?"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu"
+    }
+  ],
+  "presets": [{ "name": "Link strip" }]
+}
+{% endschema %}

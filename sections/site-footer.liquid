@@ -1,0 +1,167 @@
+<footer class="site-footer border-t border-neutral-200 bg-neutral-50" {{ section.shopify_attributes }}>
+  <div class="mx-auto max-w-7xl px-4 py-12 md:py-16">
+    {% if section.blocks.size > 0 %}
+      <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+        {% for block in section.blocks %}
+          {% case block.type %}
+            {% when 'menu_column' %}
+              <div {{ block.shopify_attributes }}>
+                {% if block.settings.title != blank %}
+                  <h3 class="mb-4 text-sm font-semibold uppercase tracking-wide text-neutral-900">
+                    {{ block.settings.title | escape }}
+                  </h3>
+                {% endif %}
+                {% if block.settings.menu != blank and block.settings.menu.links.size > 0 %}
+                  <ul class="space-y-2 text-sm text-neutral-600">
+                    {% for link in block.settings.menu.links %}
+                      <li>
+                        <a class="hover:text-neutral-900 hover:underline" href="{{ link.url }}">{{ link.title | escape }}</a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              </div>
+            {% when 'newsletter' %}
+              <div class="lg:col-span-2" {{ block.shopify_attributes }}>
+                {% if block.settings.title != blank %}
+                  <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide text-neutral-900">
+                    {{ block.settings.title | escape }}
+                  </h3>
+                {% endif %}
+                {% if block.settings.text != blank %}
+                  <p class="mb-4 max-w-md text-sm text-neutral-600">{{ block.settings.text | escape }}</p>
+                {% endif %}
+                {% form 'customer', class: 'flex flex-col gap-2 sm:flex-row' %}
+                  <input type="hidden" name="contact[tags]" value="newsletter">
+                  <label class="sr-only" for="SiteFooterEmail">{{ 'footer.newsletter_email' | t }}</label>
+                  <input
+                    id="SiteFooterEmail"
+                    class="min-w-0 flex-1 rounded border border-neutral-300 bg-white px-3 py-2 text-sm"
+                    type="email"
+                    name="contact[email]"
+                    required
+                    autocomplete="email"
+                    placeholder="{{ 'footer.newsletter_placeholder' | t }}"
+                  >
+                  <button type="submit" class="rounded bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800">
+                    {{ 'footer.newsletter_submit' | t }}
+                  </button>
+                {% endform %}
+              </div>
+          {% endcase %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-neutral-200 pt-8 text-center text-xs text-neutral-500 md:flex-row md:text-left">
+      {% liquid
+        assign year = 'now' | date: '%Y'
+      %}
+      <p>{{ 'footer.copyright_html' | t: year: year, shop_name: shop.name }}</p>
+      {% if section.settings.show_country_selector %}
+        {% if localization.available_countries.size > 1 %}
+          <div class="flex items-center gap-2">
+            {% form 'localization' %}
+              <label class="sr-only" for="SiteFooterLocale">{{ 'footer.country' | t }}</label>
+              <select
+                id="SiteFooterLocale"
+                class="rounded border border-neutral-300 bg-white px-2 py-1 text-xs"
+                name="country_code"
+                onchange="this.form.submit()"
+              >
+                {% for country in localization.available_countries %}
+                  <option
+                    value="{{ country.iso_code }}"
+                    {% if country.iso_code == localization.country.iso_code %}
+                      selected
+                    {% endif %}
+                  >
+                    {{ country.name }}
+                  </option>
+                {% endfor %}
+              </select>
+            {% endform %}
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "class": "section-site-footer",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_country_selector",
+      "label": "Show country selector",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "menu_column",
+      "name": "Menu column",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Shop"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu"
+        }
+      ]
+    },
+    {
+      "type": "newsletter",
+      "name": "Newsletter",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Email sign up"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "Get product drops and offers in your inbox."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Footer",
+      "blocks": [
+        {
+          "type": "menu_column",
+          "settings": {
+            "title": "Shop"
+          }
+        },
+        {
+          "type": "menu_column",
+          "settings": {
+            "title": "Help"
+          }
+        },
+        {
+          "type": "newsletter",
+          "settings": {
+            "title": "Stay in the loop"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

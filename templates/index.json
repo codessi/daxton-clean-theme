@@ -1,0 +1,31 @@
+{
+  "sections": {
+    "hero_main": {
+      "type": "hero-47",
+      "settings": {}
+    },
+    "shop_by_team": {
+      "type": "shop-by-grid",
+      "settings": {}
+    },
+    "featured_collections": {
+      "type": "featured-collection-row",
+      "settings": {}
+    },
+    "category_tiles": {
+      "type": "tile-showcase",
+      "settings": {}
+    },
+    "more_links": {
+      "type": "link-strip",
+      "settings": {}
+    }
+  },
+  "order": [
+    "hero_main",
+    "shop_by_team",
+    "featured_collections",
+    "category_tiles",
+    "more_links"
+  ]
+}

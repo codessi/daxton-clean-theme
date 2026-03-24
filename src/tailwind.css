@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* Scan theme Liquid so utility classes are generated */
+@source "../layout/**/*.liquid";
+@source "../sections/**/*.liquid";
+@source "../snippets/**/*.liquid";
+@source "../templates/**/*.liquid";

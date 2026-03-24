@@ -1,0 +1,28 @@
+<!doctype html>
+<html class="h-full" lang="{{ request.locale.iso_code }}">
+  <head>
+    <title>{{ page_title }}</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="description" content="{{ page_description | escape }}">
+    <link rel="canonical" href="{{ canonical_url }}">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+    {{ content_for_header }}
+    {{ 'application.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'application.js' | asset_url }}" defer></script>
+  </head>
+  <body class="min-h-full bg-white text-neutral-900 antialiased">
+    <a
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:shadow-md focus:outline-none focus:ring-2 focus:ring-neutral-900"
+      href="#MainContent"
+    >
+      {{ 'layout.skip_to_content' | t }}
+    </a>
+    {% section 'announcement-bar' %}
+    {% section 'site-header' %}
+    <main id="MainContent" role="main">
+      {{ content_for_layout }}
+    </main>
+    {% section 'site-footer' %}
+  </body>
+</html>
