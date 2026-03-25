@@ -5,6 +5,7 @@
   endif
   assign logo = section.settings.logo
   assign logo_height = section.settings.logo_height
+  assign show_debug_borders = section.settings.show_debug_borders
 -%}
 
 <header
@@ -12,15 +13,15 @@
   style="--logo-max-height: {{ logo_height }}px;"
   {{ section.shopify_attributes }}
 >
-  <div class="mx-auto box-border border-4 border-solid border-yellow-600 flex w-full max-w-350 h-25 items-center gap-3  px-4 py-3 md:gap-6 md:py-4">
-    <div class="flex border-4 border-solid border-blue-600 flex-1 items-center md:flex-none md:justify-start">
+  <div class="mx-auto box-border  flex w-full max-w-350 h-25 items-center gap-3  px-4 py-3 md:gap-6 md:py-4">
+    <div class="flex flex-1 items-center md:flex-none md:justify-start">
       <details class="mobile-nav group relative md:hidden">
         <summary class="flex cursor-pointer list-none items-center justify-center rounded-md p-2 text-neutral-900 hover:bg-neutral-100 [&::-webkit-details-marker]:hidden">
           <span class="sr-only">{{ 'layout.menu' | t }}</span>
           {% render 'icon', name: 'menu' %}
         </summary>
         <div class="absolute left-0 top-full z-50 mt-1 w-[min(100vw-2rem,22rem)] rounded-lg border border-neutral-200 bg-white p-4 shadow-lg">
-          <nav class="tk-acumin-pro-extra-condensed box-border border-4 border-solid border-red-600 font-nav" aria-label="{{ 'layout.menu' | t }}">
+          <nav class="tk-acumin-pro-extra-condensed box-border font-nav{% if show_debug_borders %} border-4 border-solid border-green-600{% endif %}" aria-label="{{ 'layout.menu' | t }}">
             {% if menu != blank %}
               <ul class="flex flex-col gap-1 text-base">
                 {% for link in menu.links %}
@@ -30,8 +31,8 @@
                       <ul class="ml-2 border-l border-neutral-100 pl-2">
                         {% for child in link.links %}
                           <li>
-                            <p class="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-neutral-500">{{ child.title | escape }}</p>
                             {% if child.links != blank %}
+                              <p class="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-neutral-500">{{ child.title | escape }}</p>
                               <ul class="mb-2">
                                 {% for grand in child.links %}
                                   <li>
@@ -40,7 +41,7 @@
                                 {% endfor %}
                               </ul>
                             {% else %}
-                              <a class="mb-2 block rounded px-2 py-1.5 text-neutral-700 hover:bg-neutral-50" href="{{ child.url }}">{{ child.title | escape }}</a>
+                              <a class="block rounded px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-700 hover:bg-neutral-50" href="{{ child.url }}">{{ child.title | escape }}</a>
                             {% endif %}
                           </li>
                         {% endfor %}
@@ -72,15 +73,19 @@
       </a>
     </div>
 
-    <nav class="tk-acumin-pro-extra-condensed border-amber-600 border-4 font-nav hidden flex-1 justify-start self-stretch md:flex md:items-center" aria-label="{{ 'layout.menu' | t }}">
+    <nav
+      class="tk-acumin-pro-extra-condensed font-nav flex-1 justify-start self-stretch md:items-center{% if section.settings.mega_menu_debug_pinned %} flex{% else %} hidden md:flex{% endif %}"
+      aria-label="{{ 'layout.menu' | t }}"
+    >
       {% if menu != blank %}
+        {% assign mega_debug_assigned = false %}
         <ul class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 lg:gap-x-2">
           {% for link in menu.links %}
             <li
               class="group relative flex items-center [&:has([data-mega-panel])]:after:absolute [&:has([data-mega-panel])]:after:left-0 [&:has([data-mega-panel])]:after:right-0 [&:has([data-mega-panel])]:after:top-full [&:has([data-mega-panel])]:after:z-[35] [&:has([data-mega-panel])]:after:block [&:has([data-mega-panel])]:after:h-8 [&:has([data-mega-panel])]:after:content-['']"
             >
               <a
-                class="tk-acumin-pro-extra-condensed relative inline-flex items-center px-1 py-2 text-base font-bold uppercase  text-neutral-900 after:pointer-events-none after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-full after:origin-left after:scale-x-0 after:bg-neutral-900 after:transition-transform after:duration-200 after:ease-out lg:px-2{% if link.active or link.child_active %} after:scale-x-100{% endif %} group-hover:after:scale-x-100 group-focus-within:after:scale-x-100"
+                class="tk-acumin-pro-extra-condensed relative inline-flex items-center px-1 py-2 text-base font-bold uppercase text-neutral-900 after:pointer-events-none after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-full after:origin-left after:scale-x-0 after:bg-neutral-900 after:transition-transform after:duration-200 after:ease-out lg:px-2{% if show_debug_borders %} border-4 border-solid border-blue-600{% endif %}{% if link.active or link.child_active %} after:scale-x-100{% endif %} group-hover:after:scale-x-100 group-focus-within:after:scale-x-100"
                 href="{{ link.url }}"
                 {% if link.links != blank %}
                   aria-haspopup="true"
@@ -94,32 +99,80 @@
                   assign mega_promo = nil
                   for block in section.blocks
                     if block.type == 'mega_menu_promo'
-                      assign ph = block.settings.parent_handle | strip | downcase
+                      assign ph = block.settings.parent_handle | strip | downcase | replace: ' ', '-'
+                      assign ph = ph | replace: '--', '-'
+                      assign ph = ph | replace: '--', '-'
+                      assign ph = ph | replace: '--', '-'
                       if ph == link.handle
                         assign mega_promo = block
                         break
                       endif
                     endif
                   endfor
+
+                  assign mega_aside = false
+                  assign mega_img = nil
+                  assign mega_href = '#'
+                  assign mega_caption = ''
+                  if mega_promo != nil
+                    assign mega_aside = true
+                    if mega_promo.settings.image != blank
+                      assign mega_img = mega_promo.settings.image
+                    endif
+                    assign mega_href = mega_promo.settings.link | default: '#'
+                    assign mega_caption = mega_promo.settings.title
+                  elsif section.settings.mega_menu_feature_collection != blank
+                    assign fc = section.settings.mega_menu_feature_collection
+                    assign mega_aside = true
+                    if fc.featured_image != blank
+                      assign mega_img = fc.featured_image
+                    else
+                      assign fc_first = fc.products | first
+                      if fc_first != blank and fc_first.featured_image != blank
+                        assign mega_img = fc_first.featured_image
+                      endif
+                    endif
+                    assign mega_href = fc.url
+                    assign mega_caption = fc.title
+                  endif
+
+                  assign mega_debug_this = false
+                  if section.settings.mega_menu_debug_pinned and link.links != blank
+                    assign dh = section.settings.mega_menu_debug_handle | strip | downcase | replace: ' ', '-'
+                    assign dh = dh | replace: '--', '-'
+                    assign dh = dh | replace: '--', '-'
+                    assign dh = dh | replace: '--', '-'
+                    if dh != blank
+                      if dh == link.handle
+                        assign mega_debug_this = true
+                      endif
+                    elsif mega_debug_assigned == false
+                      assign mega_debug_this = true
+                      assign mega_debug_assigned = true
+                    endif
+                  endif
                 %}
                 <div
-                  class="pointer-events-none invisible fixed left-0 right-0 top-[var(--mega-menu-top,5rem)] z-40 flex min-h-[calc(100vh_-_var(--mega-menu-top,5rem))] flex-col opacity-0 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.15)] transition duration-200 ease-out group-hover:pointer-events-auto group-hover:visible group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:visible group-focus-within:opacity-100"
+                  class="fixed bottom-0 left-0 right-0 top-[var(--mega-menu-top,5rem)] z-40 flex min-h-0 flex-col overflow-hidden shadow-[0_12px_40px_-12px_rgba(0,0,0,0.15)] transition duration-200 ease-out{% if show_debug_borders %} border-4 border-solid border-red-300{% endif %}{% if mega_debug_this %} pointer-events-auto visible opacity-100{% else %} pointer-events-none invisible opacity-0 group-hover:pointer-events-auto group-hover:visible group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:visible group-focus-within:opacity-100{% endif %}"
                   data-mega-panel
+                  {% if mega_debug_this %}
+                    data-mega-debug-pinned
+                  {% endif %}
                   role="region"
                   aria-label="{{ link.title | escape }}"
                 >
                   <div class="h-2 shrink-0 pointer-events-auto" aria-hidden="true"></div>
-                  <div class="flex min-h-0 flex-1 flex-col border-t border-neutral-200 bg-white">
-                    <div class="mx-auto flex w-full max-w-[85rem] flex-1 flex-col overflow-y-auto px-4 py-12 lg:px-8">
-                      <div class="mega-menu__layout flex min-h-0 w-full flex-col gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-12 xl:gap-16">
-                        <div class="mega-menu__submenu min-w-0 flex-1">
-                          <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                  <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden border-t border-neutral-200 bg-white">
+                    <div class="mega-menu__scroll mx-auto flex min-h-0 w-full max-w-[85rem] flex-1 flex-col overflow-y-auto overscroll-y-contain px-4 py-12 lg:px-8{% if show_debug_borders %} border-4 border-solid border-red-600{% endif %}">
+                      <div class="mega-menu__layout flex w-full min-h-0 flex-col gap-0 lg:flex-row lg:items-start lg:justify-between lg:gap-12 xl:gap-16{% if show_debug_borders %} border-4 border-solid border-green-400{% endif %}">
+                        <div class="mega-menu__submenu min-h-0 min-w-0 flex-1{% if show_debug_borders %} border-4 border-solid border-yellow-400{% endif %}">
+                          <div class="grid w-10/12 gap-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3{% if show_debug_borders %} border-4 border-solid border-blue-600{% endif %}">
                             {% for child in link.links %}
-                              <div class="mega-menu__column text-left">
-                                <p class="mega-menu__heading tk-acumin-pro-extra-condensed text-sm font-bold uppercase tracking-[0.16em] text-neutral-900">
-                                  {{ child.title | escape }}
-                                </p>
+                              <div class="mega-menu__column text-left{% if show_debug_borders %} border-4 border-solid border-red-600{% endif %}">
                                 {% if child.links != blank %}
+                                  <p class="mega-menu__heading tk-acumin-pro-extra-condensed text-base font-bold uppercase tracking-0 text-neutral-900">
+                                    {{ child.title | escape }}
+                                  </p>
                                   <ul class="mega-menu__list mt-4 space-y-2.5">
                                     {% for grand in child.links %}
                                       <li>
@@ -130,45 +183,43 @@
                                     {% endfor %}
                                   </ul>
                                 {% else %}
-                                  <ul class="mega-menu__list mt-4 space-y-2.5">
-                                    <li>
-                                      <a class="mega-menu__link text-[0.9375rem] font-normal leading-snug text-neutral-800 transition hover:text-neutral-950" href="{{ child.url }}">
-                                        {{- child.title | escape -}}
-                                      </a>
-                                    </li>
-                                  </ul>
+                                  <a
+                                    class="mega-menu__heading tk-acumin-pro-extra-condensed text-base font-bold uppercase tracking-0 text-neutral-900 no-underline transition hover:text-neutral-950"
+                                    href="{{ child.url }}"
+                                  >
+                                    {{- child.title | escape -}}
+                                  </a>
                                 {% endif %}
                               </div>
                             {% endfor %}
                           </div>
                         </div>
 
-                        {% if mega_promo != nil %}
+                        {% if mega_aside %}
                           <aside
-                            class="mega-menu__feature w-full shrink-0 border-t border-neutral-100 pt-10 lg:ml-auto lg:w-[min(100%,380px)] lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0 xl:w-[400px] xl:pl-12"
-                            {{ mega_promo.shopify_attributes }}
+                            class="mega-menu__feature w-full max-w-[220px] shrink-0 pt-10 max-lg:mx-auto sm:max-w-[260px] md:max-w-[300px] lg:mx-0 lg:ml-auto lg:max-w-none lg:w-[min(100%,380px)] lg:pl-10 lg:pt-0 xl:w-[400px] xl:pl-12{% if show_debug_borders %} border-4 border-solid border-orange-300{% else %} border-t border-neutral-100 lg:border-l lg:border-t-0 lg:border-neutral-100{% endif %}"
+                            {% if mega_promo != nil %}
+                              {{ mega_promo.shopify_attributes }}
+                            {% endif %}
                           >
-                            <a
-                              class="group/promo block"
-                              href="{{ mega_promo.settings.link | default: '#' }}"
-                            >
-                              {% if mega_promo.settings.image != blank %}
-                                <div class="mega-menu__promo-image aspect-[3/4] w-full overflow-hidden bg-neutral-100">
+                            <a class="group/promo block" href="{{ mega_href }}">
+                              {% if mega_img != blank %}
+                                <div class="mega-menu__promo-image relative aspect-[3/4] w-full overflow-hidden bg-neutral-100">
                                   {{
-                                    mega_promo.settings.image
+                                    mega_img
                                     | image_url: width: 900
                                     | image_tag:
-                                      class: 'h-full w-full object-cover transition duration-500 group-hover/promo:scale-[1.02]',
+                                      class: 'absolute inset-0 h-full w-full object-contain object-center px-4 transition duration-500 group-hover/promo:scale-[1.02] sm:px-6 lg:px-8',
                                       loading: 'lazy',
-                                      sizes: '(min-width: 1024px) 380px, 100vw',
+                                      sizes: '(max-width: 1023px) min(72vw, 300px), 380px',
                                       widths: '400, 600, 800, 900',
-                                      alt: mega_promo.settings.title | escape
+                                      alt: mega_caption | escape
                                   }}
                                 </div>
                               {% endif %}
-                              {% if mega_promo.settings.title != blank %}
+                              {% if mega_caption != blank %}
                                 <span class="tk-acumin-pro-extra-condensed mt-4 block text-center text-sm font-bold uppercase tracking-[0.18em] text-neutral-900 underline-offset-4 group-hover/promo:underline">
-                                  {{ mega_promo.settings.title | escape }}
+                                  {{ mega_caption | escape }}
                                 </span>
                               {% endif %}
                             </a>
@@ -185,13 +236,13 @@
       {% endif %}
     </nav>
 
-    <div class="flex flex-1 items-center justify-end gap-1 border-4 border-solid border-green-600 flex-1 md:max-w-none md:flex-none md:gap-2">
+    <div class="flex flex-1 items-center justify-end gap-1 md:max-w-none md:flex-none md:gap-2">
       {% if section.settings.show_search %}
         <form
           action="{{ routes.search_url }}"
           method="get"
           role="search"
-          class="mr-1 hidden min-w-0 max-w-[14rem] items-center gap-2 rounded-full border border-neutral-300 bg-white px-3 py-2 lg:flex lg:max-w-[16rem] xl:max-w-[18rem]"
+          class="mr-1 hidden min-w-0 max-w-56 items-center gap-2 rounded-full border border-neutral-300 bg-white px-3 py-2 lg:flex lg:max-w-[16rem] xl:max-w-[18rem]"
         >
           <label class="sr-only" for="SiteHeaderSearchInline">{{ 'layout.search' | t }}</label>
           <input
@@ -312,6 +363,32 @@
       "info": "Defaults to the Main menu handle (main-menu). Create menus under Online Store → Navigation."
     },
     {
+      "type": "collection",
+      "id": "mega_menu_feature_collection",
+      "label": "Mega menu featured collection",
+      "info": "One collection for the right column on every mega menu (uses collection image, title, and URL). Optional if you use Mega menu promo blocks instead; a block matching the parent link handle overrides this."
+    },
+    {
+      "type": "checkbox",
+      "id": "mega_menu_debug_pinned",
+      "label": "Debug: keep mega menu open",
+      "default": true,
+      "info": "Pins the mega panel open (no hover) for layout/CSS debugging. Turn off before publishing."
+    },
+    {
+      "type": "text",
+      "id": "mega_menu_debug_handle",
+      "label": "Debug: menu item handle to pin",
+      "info": "Optional. e.g. find-your-fit or find your fit. If empty, the first top-level item with a submenu is pinned."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_debug_borders",
+      "label": "Show layout debug borders",
+      "default": false,
+      "info": "Thick colored outlines on the mobile drawer, top nav links, and mega menu regions. Turn off for production."
+    },
+    {
       "type": "checkbox",
       "id": "show_search",
       "label": "Show search",
@@ -333,7 +410,7 @@
           "type": "text",
           "id": "parent_handle",
           "label": "Top-level menu item handle",
-          "info": "Must match the handle of a parent link (e.g. headwear). Renders the collection image and caption on the right side of that item’s mega menu; submenu links stay on the left."
+          "info": "Must match that menu link’s handle (e.g. find-your-fit). You can paste the title with spaces (e.g. find your fit); spaces are turned into hyphens. Overrides the section’s Mega menu featured collection for this item only."
         },
         {
           "type": "image_picker",

@@ -21,10 +21,48 @@
       },
       "site-header": {
         "type": "site-header",
+        "blocks": {
+          "mega_menu_promo_GECG4w": {
+            "type": "mega_menu_promo",
+            "settings": {
+              "parent_handle": "Collections",
+              "image": "shopify://shop_images/lu-6-snapback_00005.webp",
+              "title": "Featured collection",
+              "link": "shopify://products/lu-3-snapback-hat-copy"
+            }
+          },
+          "mega_menu_promo_6K77ME": {
+            "type": "mega_menu_promo",
+            "settings": {
+              "parent_handle": "headwear",
+              "image": "shopify://shop_images/lu-6-snapback_00008.webp",
+              "title": "Featured collection",
+              "link": "shopify://collections"
+            }
+          },
+          "mega_menu_promo_g3DW4F": {
+            "type": "mega_menu_promo",
+            "settings": {
+              "parent_handle": "find your fit",
+              "image": "shopify://shop_images/lu-6-snapback_00012.webp",
+              "title": "Featured collection",
+              "link": "shopify://collections/5-panel"
+            }
+          }
+        },
+        "block_order": [
+          "mega_menu_promo_GECG4w",
+          "mega_menu_promo_6K77ME",
+          "mega_menu_promo_g3DW4F"
+        ],
         "settings": {
           "logo": "shopify://shop_images/Headear_Logo.png",
           "logo_height": 48,
           "menu": "main-menu",
+          "mega_menu_feature_collection": "",
+          "mega_menu_debug_pinned": false,
+          "mega_menu_debug_handle": "",
+          "show_debug_borders": false,
           "show_search": true,
           "favorite_teams_url": ""
         }
