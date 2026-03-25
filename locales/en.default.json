@@ -12,7 +12,9 @@
     "search": "Search",
     "search_placeholder": "Search products",
     "account": "Account",
+    "login": "Login",
     "cart": "Cart",
+    "bag": "Bag",
     "favorite_teams": "Teams"
   },
   "footer": {

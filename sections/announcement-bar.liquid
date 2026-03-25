@@ -1,12 +1,12 @@
 {%- if section.settings.message != blank -%}
   <div
-    class="announcement-bar text-center text-sm font-medium tracking-wide"
+    class="bg-[var(--announcement-bg)] text-[var(--announcement-fg)] text-center text-sm font-medium tracking-wide"
     style="--announcement-bg: {{ section.settings.background_color }}; --announcement-fg: {{ section.settings.text_color }};"
     {{ section.shopify_attributes }}
   >
     <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 px-4 py-2.5">
       {%- if section.settings.link != blank -%}
-        <a href="{{ section.settings.link }}" class="announcement-bar__link underline-offset-2 hover:underline">
+        <a href="{{ section.settings.link }}" class="text-inherit underline-offset-2 hover:underline">
           {{ section.settings.message | escape }}
         </a>
       {%- else -%}
@@ -15,16 +15,6 @@
     </div>
   </div>
 {%- endif -%}
-
-{% stylesheet %}
-  .announcement-bar {
-    background-color: var(--announcement-bg);
-    color: var(--announcement-fg);
-  }
-  .announcement-bar__link {
-    color: inherit;
-  }
-{% endstylesheet %}
 
 {% schema %}
 {

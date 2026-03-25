@@ -1,7 +1,13 @@
 @import "tailwindcss";
 
-/* Scan theme Liquid so utility classes are generated */
+/* Nav / Typekit: acumin-pro-extra-condensed — add weight 200 in your Adobe Fonts kit if missing */
+@theme {
+  --font-nav: "acumin-pro-extra-condensed", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Tell Tailwind which files contain class names (edit if you add new Liquid roots) */
 @source "../layout/**/*.liquid";
 @source "../sections/**/*.liquid";
 @source "../snippets/**/*.liquid";
 @source "../templates/**/*.liquid";
+@source "../blocks/**/*.liquid";

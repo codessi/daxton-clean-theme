@@ -1,28 +1,31 @@
 {%- liquid
   assign menu = section.settings.menu
+  if menu == blank
+    assign menu = linklists['main-menu']
+  endif
   assign logo = section.settings.logo
   assign logo_height = section.settings.logo_height
 -%}
 
 <header
-  class="site-header js-site-header sticky top-0 z-50 border-b border-neutral-200 bg-white"
+  class="site-header js-site-header sticky top-0 z-50  bg-white"
   style="--logo-max-height: {{ logo_height }}px;"
   {{ section.shopify_attributes }}
 >
-  <div class="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 md:gap-6 md:py-4">
-    <div class="flex flex-1 items-center md:flex-none md:justify-start">
+  <div class="mx-auto box-border border-4 border-solid border-yellow-600 flex w-full max-w-350 h-25 items-center gap-3  px-4 py-3 md:gap-6 md:py-4">
+    <div class="flex border-4 border-solid border-blue-600 flex-1 items-center md:flex-none md:justify-start">
       <details class="mobile-nav group relative md:hidden">
         <summary class="flex cursor-pointer list-none items-center justify-center rounded-md p-2 text-neutral-900 hover:bg-neutral-100 [&::-webkit-details-marker]:hidden">
           <span class="sr-only">{{ 'layout.menu' | t }}</span>
           {% render 'icon', name: 'menu' %}
         </summary>
         <div class="absolute left-0 top-full z-50 mt-1 w-[min(100vw-2rem,22rem)] rounded-lg border border-neutral-200 bg-white p-4 shadow-lg">
-          <nav aria-label="{{ 'layout.menu' | t }}">
+          <nav class="tk-acumin-pro-extra-condensed box-border border-4 border-solid border-red-600 font-nav" aria-label="{{ 'layout.menu' | t }}">
             {% if menu != blank %}
-              <ul class="flex flex-col gap-1 text-sm">
+              <ul class="flex flex-col gap-1 text-base">
                 {% for link in menu.links %}
                   <li>
-                    <a class="block rounded px-2 py-2 font-medium hover:bg-neutral-50" href="{{ link.url }}">{{ link.title | escape }}</a>
+                    <a class="block rounded px-2 py-2 text-lg font-extralight uppercase tracking-[0.12em] text-neutral-900 hover:bg-neutral-50" href="{{ link.url }}">{{ link.title | escape }}</a>
                     {% if link.links != blank %}
                       <ul class="ml-2 border-l border-neutral-100 pl-2">
                         {% for child in link.links %}
@@ -59,7 +62,7 @@
             logo
             | image_url: width: 600
             | image_tag:
-              class: 'site-header__logo h-auto w-auto max-w-[140px] object-contain md:max-w-[180px]',
+              class: 'h-auto max-h-[var(--logo-max-height,48px)] w-auto max-w-[140px] object-contain md:max-w-[180px]',
               widths: '180, 360, 540',
               alt: shop.name
           }}
@@ -69,13 +72,15 @@
       </a>
     </div>
 
-    <nav class="hidden flex-1 justify-center self-stretch md:flex md:items-center" aria-label="{{ 'layout.menu' | t }}">
+    <nav class="tk-acumin-pro-extra-condensed border-amber-600 border-4 font-nav hidden flex-1 justify-start self-stretch md:flex md:items-center" aria-label="{{ 'layout.menu' | t }}">
       {% if menu != blank %}
-        <ul class="site-header__nav-list flex flex-wrap items-center justify-center gap-1 lg:gap-3">
+        <ul class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 lg:gap-x-2">
           {% for link in menu.links %}
-            <li class="site-header__nav-item group relative flex items-center">
+            <li
+              class="group relative flex items-center [&:has([data-mega-panel])]:after:absolute [&:has([data-mega-panel])]:after:left-0 [&:has([data-mega-panel])]:after:right-0 [&:has([data-mega-panel])]:after:top-full [&:has([data-mega-panel])]:after:z-[35] [&:has([data-mega-panel])]:after:block [&:has([data-mega-panel])]:after:h-8 [&:has([data-mega-panel])]:after:content-['']"
+            >
               <a
-                class="site-header__nav-link relative inline-flex items-center px-1 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-neutral-900 lg:px-2 lg:text-sm"
+                class="tk-acumin-pro-extra-condensed relative inline-flex items-center px-1 py-2 text-base font-bold uppercase  text-neutral-900 after:pointer-events-none after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-full after:origin-left after:scale-x-0 after:bg-neutral-900 after:transition-transform after:duration-200 after:ease-out lg:px-2{% if link.active or link.child_active %} after:scale-x-100{% endif %} group-hover:after:scale-x-100 group-focus-within:after:scale-x-100"
                 href="{{ link.url }}"
                 {% if link.links != blank %}
                   aria-haspopup="true"
@@ -85,37 +90,49 @@
               </a>
 
               {% if link.links != blank %}
+                {% liquid
+                  assign mega_promo = nil
+                  for block in section.blocks
+                    if block.type == 'mega_menu_promo'
+                      assign ph = block.settings.parent_handle | strip | downcase
+                      if ph == link.handle
+                        assign mega_promo = block
+                        break
+                      endif
+                    endif
+                  endfor
+                %}
                 <div
-                  class="mega-menu__panel pointer-events-none invisible fixed left-0 right-0 z-40 opacity-0 shadow-lg transition duration-200 ease-out group-hover:pointer-events-auto group-hover:visible group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:visible group-focus-within:opacity-100"
+                  class="pointer-events-none invisible fixed left-0 right-0 top-[var(--mega-menu-top,5rem)] z-40 flex min-h-[calc(100vh_-_var(--mega-menu-top,5rem))] flex-col opacity-0 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.15)] transition duration-200 ease-out group-hover:pointer-events-auto group-hover:visible group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:visible group-focus-within:opacity-100"
                   data-mega-panel
                   role="region"
                   aria-label="{{ link.title | escape }}"
                 >
-                  <div class="mega-menu__bridge pointer-events-auto" aria-hidden="true"></div>
-                  <div class="border-t border-neutral-200 bg-white">
-                    <div class="mx-auto max-w-7xl px-4 py-10 lg:px-6">
-                      <div class="mega-menu__grid lg:grid lg:grid-cols-12 lg:gap-10 lg:items-start">
-                        <div class="mega-menu__columns lg:col-span-8">
-                          <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+                  <div class="h-2 shrink-0 pointer-events-auto" aria-hidden="true"></div>
+                  <div class="flex min-h-0 flex-1 flex-col border-t border-neutral-200 bg-white">
+                    <div class="mx-auto flex w-full max-w-[85rem] flex-1 flex-col overflow-y-auto px-4 py-12 lg:px-8">
+                      <div class="mega-menu__layout flex min-h-0 w-full flex-col gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-12 xl:gap-16">
+                        <div class="mega-menu__submenu min-w-0 flex-1">
+                          <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
                             {% for child in link.links %}
-                              <div class="mega-menu__column">
-                                <p class="mega-menu__heading text-xs font-bold uppercase tracking-[0.14em] text-neutral-900">
+                              <div class="mega-menu__column text-left">
+                                <p class="mega-menu__heading tk-acumin-pro-extra-condensed text-sm font-bold uppercase tracking-[0.16em] text-neutral-900">
                                   {{ child.title | escape }}
                                 </p>
                                 {% if child.links != blank %}
-                                  <ul class="mega-menu__list mt-3 space-y-2">
+                                  <ul class="mega-menu__list mt-4 space-y-2.5">
                                     {% for grand in child.links %}
                                       <li>
-                                        <a class="mega-menu__link text-sm text-neutral-700 transition hover:text-neutral-950" href="{{ grand.url }}">
+                                        <a class="mega-menu__link text-[0.9375rem] font-normal leading-snug text-neutral-800 transition hover:text-neutral-950" href="{{ grand.url }}">
                                           {{- grand.title | escape -}}
                                         </a>
                                       </li>
                                     {% endfor %}
                                   </ul>
                                 {% else %}
-                                  <ul class="mega-menu__list mt-3 space-y-2">
+                                  <ul class="mega-menu__list mt-4 space-y-2.5">
                                     <li>
-                                      <a class="mega-menu__link text-sm text-neutral-700 transition hover:text-neutral-950" href="{{ child.url }}">
+                                      <a class="mega-menu__link text-[0.9375rem] font-normal leading-snug text-neutral-800 transition hover:text-neutral-950" href="{{ child.url }}">
                                         {{- child.title | escape -}}
                                       </a>
                                     </li>
@@ -126,21 +143,11 @@
                           </div>
                         </div>
 
-                        {% liquid
-                          assign mega_promo = nil
-                          for block in section.blocks
-                            if block.type == 'mega_menu_promo'
-                              assign ph = block.settings.parent_handle | strip | downcase
-                              if ph == link.handle
-                                assign mega_promo = block
-                                break
-                              endif
-                            endif
-                          endfor
-                        %}
-
                         {% if mega_promo != nil %}
-                          <div class="mega-menu__promo mt-10 lg:col-span-4 lg:mt-0" {{ mega_promo.shopify_attributes }}>
+                          <aside
+                            class="mega-menu__feature w-full shrink-0 border-t border-neutral-100 pt-10 lg:ml-auto lg:w-[min(100%,380px)] lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0 xl:w-[400px] xl:pl-12"
+                            {{ mega_promo.shopify_attributes }}
+                          >
                             <a
                               class="group/promo block"
                               href="{{ mega_promo.settings.link | default: '#' }}"
@@ -149,23 +156,23 @@
                                 <div class="mega-menu__promo-image aspect-[3/4] w-full overflow-hidden bg-neutral-100">
                                   {{
                                     mega_promo.settings.image
-                                    | image_url: width: 800
+                                    | image_url: width: 900
                                     | image_tag:
                                       class: 'h-full w-full object-cover transition duration-500 group-hover/promo:scale-[1.02]',
                                       loading: 'lazy',
-                                      sizes: '(min-width: 1024px) 33vw, 100vw',
-                                      widths: '400, 600, 800',
+                                      sizes: '(min-width: 1024px) 380px, 100vw',
+                                      widths: '400, 600, 800, 900',
                                       alt: mega_promo.settings.title | escape
                                   }}
                                 </div>
                               {% endif %}
                               {% if mega_promo.settings.title != blank %}
-                                <span class="mt-3 block text-center text-xs font-bold uppercase tracking-[0.14em] text-neutral-900 underline-offset-4 group-hover/promo:underline">
+                                <span class="tk-acumin-pro-extra-condensed mt-4 block text-center text-sm font-bold uppercase tracking-[0.18em] text-neutral-900 underline-offset-4 group-hover/promo:underline">
                                   {{ mega_promo.settings.title | escape }}
                                 </span>
                               {% endif %}
                             </a>
-                          </div>
+                          </aside>
                         {% endif %}
                       </div>
                     </div>
@@ -178,24 +185,24 @@
       {% endif %}
     </nav>
 
-    <div class="flex flex-1 items-center justify-end gap-1 md:max-w-none md:flex-none md:gap-2">
+    <div class="flex flex-1 items-center justify-end gap-1 border-4 border-solid border-green-600 flex-1 md:max-w-none md:flex-none md:gap-2">
       {% if section.settings.show_search %}
         <form
           action="{{ routes.search_url }}"
           method="get"
           role="search"
-          class="mr-1 hidden max-w-[11rem] items-center gap-2 border-b border-neutral-300 pb-1 lg:flex lg:max-w-[14rem]"
+          class="mr-1 hidden min-w-0 max-w-[14rem] items-center gap-2 rounded-full border border-neutral-300 bg-white px-3 py-2 lg:flex lg:max-w-[16rem] xl:max-w-[18rem]"
         >
           <label class="sr-only" for="SiteHeaderSearchInline">{{ 'layout.search' | t }}</label>
           <input
             id="SiteHeaderSearchInline"
-            class="min-w-0 flex-1 bg-transparent text-sm text-neutral-900 outline-none placeholder:text-neutral-400"
+            class="min-w-0 flex-1 bg-transparent text-sm text-neutral-900 outline-none placeholder:text-neutral-500"
             type="search"
             name="q"
             placeholder="{{ 'layout.search_placeholder' | t }}"
             autocomplete="off"
           >
-          <button type="submit" class="shrink-0 text-neutral-900" aria-label="{{ 'layout.search' | t }}">
+          <button type="submit" class="shrink-0 text-neutral-700 hover:text-neutral-900" aria-label="{{ 'layout.search' | t }}">
             {% render 'icon', name: 'search' %}
           </button>
         </form>
@@ -224,76 +231,38 @@
 
       {% if section.settings.favorite_teams_url != blank %}
         <a
-          class="hidden items-center gap-1.5 rounded-md px-1 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-900 hover:bg-neutral-100 sm:flex"
+          class="hidden flex-col items-center gap-0.5 rounded-md px-1 py-1.5 text-neutral-900 hover:bg-neutral-100 sm:flex"
           href="{{ section.settings.favorite_teams_url }}"
         >
           {% render 'icon', name: 'heart' %}
-          <span class="hidden xl:inline">{{ 'layout.favorite_teams' | t }}</span>
+          <span class="text-[10px] font-semibold uppercase tracking-[0.12em]">{{ 'layout.favorite_teams' | t }}</span>
         </a>
       {% endif %}
 
       <a
-        class="hidden items-center justify-center rounded-md p-2 text-neutral-900 hover:bg-neutral-100 sm:flex"
+        class="hidden flex-col items-center gap-0.5 rounded-md px-1 py-1.5 text-neutral-900 hover:bg-neutral-100 sm:flex"
         href="{{ routes.account_url }}"
       >
         <span class="sr-only">{{ 'layout.account' | t }}</span>
         {% render 'icon', name: 'user' %}
+        <span class="text-[10px] font-semibold uppercase tracking-[0.12em]" aria-hidden="true">{{ 'layout.login' | t }}</span>
       </a>
 
-      <a class="relative flex items-center justify-center rounded-md p-2 text-neutral-900 hover:bg-neutral-100" href="{{ routes.cart_url }}">
+      <a class="relative flex flex-col items-center gap-0.5 rounded-md px-1 py-1.5 text-neutral-900 hover:bg-neutral-100" href="{{ routes.cart_url }}">
         <span class="sr-only">{{ 'layout.cart' | t }}</span>
-        {% render 'icon', name: 'cart' %}
-        {% if cart.item_count > 0 %}
-          <span class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-neutral-900 px-1 text-[10px] font-semibold text-white">
-            {{ cart.item_count }}
-          </span>
-        {% endif %}
+        <span class="relative inline-flex">
+          {% render 'icon', name: 'cart' %}
+          {% if cart.item_count > 0 %}
+            <span class="absolute -right-1.5 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-neutral-900 px-1 text-[10px] font-semibold text-white">
+              {{ cart.item_count }}
+            </span>
+          {% endif %}
+        </span>
+        <span class="text-[10px] font-semibold uppercase tracking-[0.12em]" aria-hidden="true">{{ 'layout.bag' | t }}</span>
       </a>
     </div>
   </div>
 </header>
-
-{% stylesheet %}
-  .site-header__logo {
-    max-height: var(--logo-max-height, 48px);
-  }
-
-  .site-header__nav-link::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    height: 2px;
-    width: 100%;
-    background-color: currentColor;
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .site-header__nav-item:hover .site-header__nav-link::after,
-  .site-header__nav-item:focus-within .site-header__nav-link::after {
-    transform: scaleX(1);
-  }
-
-  .mega-menu__bridge {
-    height: 0.5rem;
-  }
-
-  .mega-menu__panel {
-    top: var(--mega-menu-top, 5rem);
-  }
-
-  .site-header__nav-item:has([data-mega-panel])::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 100%;
-    height: 2rem;
-    z-index: 35;
-  }
-{% endstylesheet %}
 
 {% javascript %}
   (function () {
@@ -338,7 +307,9 @@
     {
       "type": "link_list",
       "id": "menu",
-      "label": "Main menu"
+      "label": "Main menu",
+      "default": "main-menu",
+      "info": "Defaults to the Main menu handle (main-menu). Create menus under Online Store → Navigation."
     },
     {
       "type": "checkbox",
@@ -362,7 +333,7 @@
           "type": "text",
           "id": "parent_handle",
           "label": "Top-level menu item handle",
-          "info": "Must match the handle of a parent link (e.g. headwear). Find it in Navigation by editing the menu link URL slug."
+          "info": "Must match the handle of a parent link (e.g. headwear). Renders the collection image and caption on the right side of that item’s mega menu; submenu links stay on the left."
         },
         {
           "type": "image_picker",
